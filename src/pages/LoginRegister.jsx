@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store';
 import { clearError } from '../features/authSlice';
 import { useLoginMutation, useRegisterMutation } from '../store/apiSlice';
-import { Zap, Mail, Lock, User, AlertCircle } from 'lucide-react';
+import { Zap, Mail, Lock, User, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 export const LoginRegister = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -11,6 +11,7 @@ export const LoginRegister = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [validationError, setValidationError] = useState(null);
 
   const dispatch = useAppDispatch();
@@ -171,13 +172,21 @@ export const LoginRegister = () => {
                 <Lock className="h-4 w-4" />
               </span>
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-slate-950/60 border border-slate-800 hover:border-slate-700/80 focus:border-indigo-500 rounded-xl py-2.5 pl-10 pr-4 text-sm outline-none transition-all placeholder:text-slate-650"
+                className="w-full bg-slate-950/60 border border-slate-800 hover:border-slate-700/80 focus:border-indigo-500 rounded-xl py-2.5 pl-10 pr-10 text-sm text-white outline-none transition-all placeholder:text-slate-650"
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
+                title={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
             </div>
           </div>
 
@@ -191,13 +200,21 @@ export const LoginRegister = () => {
                   <Lock className="h-4 w-4" />
                 </span>
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full bg-slate-950/60 border border-slate-800 hover:border-slate-700/80 focus:border-indigo-500 rounded-xl py-2.5 pl-10 pr-4 text-sm outline-none transition-all placeholder:text-slate-650"
+                  className="w-full bg-slate-950/60 border border-slate-800 hover:border-slate-700/80 focus:border-indigo-500 rounded-xl py-2.5 pl-10 pr-10 text-sm text-white outline-none transition-all placeholder:text-slate-650"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
               </div>
             </div>
           )}

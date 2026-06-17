@@ -31,7 +31,9 @@ export const Dashboard = () => {
   // Overall progress calculations
   const totalTopics = subjects.reduce((sum, s) => sum + s.totalTopics, 0);
   const completedTopics = subjects.reduce((sum, s) => sum + s.completedTopics, 0);
-  const overallProgress = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
+  const overallProgress = subjects.length > 0
+    ? Math.round(subjects.reduce((sum, s) => sum + (s.progress || 0), 0) / subjects.length)
+    : 0;
 
   // SVG parameters for radial progress
   const radius = 50;

@@ -9,8 +9,10 @@ import {
   useDeleteTopicMutation,
   useCreateFlashcardMutation,
   useDeleteFlashcardMutation,
+  useTogglePinFlashcardMutation,
+  useUpdateFlashcardMutation,
 } from '../store/apiSlice';
-import { ChevronLeft, Plus, Play, Trash2, CheckCircle2, Circle, X, HelpCircle, Eye, EyeOff } from 'lucide-react';
+import { ChevronLeft, Plus, Play, Trash2, CheckCircle2, Circle, X, HelpCircle, Eye, EyeOff, Bookmark, Edit2 } from 'lucide-react';
 
 export const SubjectView = () => {
   const { id: subjectId } = useParams();
@@ -30,6 +32,8 @@ export const SubjectView = () => {
   const [deleteTopic] = useDeleteTopicMutation();
   const [createFlashcard] = useCreateFlashcardMutation();
   const [deleteFlashcard] = useDeleteFlashcardMutation();
+  const [togglePinFlashcard] = useTogglePinFlashcardMutation();
+  const [updateFlashcard] = useUpdateFlashcardMutation();
 
   // Find current subject in list
   const currentSubject = subjects.find((s) => s._id === subjectId);
@@ -43,6 +47,11 @@ export const SubjectView = () => {
   const [selectedTopicId, setSelectedTopicId] = useState(null);
   const [cardFront, setCardFront] = useState('');
   const [cardBack, setCardBack] = useState('');
+
+  const [showEditCardModal, setShowEditCardModal] = useState(false);
+  const [editingCard, setEditingCard] = useState(null);
+  const [editCardFront, setEditCardFront] = useState('');
+  const [editCardBack, setEditCardBack] = useState('');
 
   if (!currentSubject) {
     return (
@@ -115,6 +124,35 @@ export const SubjectView = () => {
       } catch (err) {
         console.error('Failed to delete flashcard:', err);
       }
+    }
+  };
+
+  const handleTogglePinCard = async (cardId, isPinned) => {
+    try {
+      await togglePinFlashcard({ id: cardId, isPinned: !isPinned }).unwrap();
+    } catch (err) {
+      console.error('Failed to toggle pin status:', err);
+    }
+  };
+
+  const handleOpenEditCardModal = (card) => {
+    setEditingCard(card);
+    setEditCardFront(card.front);
+    setEditCardBack(card.back);
+    setShowEditCardModal(true);
+  };
+
+  const handleEditCard = async (e) => {
+    e.preventDefault();
+    if (!editingCard || !editCardFront.trim() || !editCardBack.trim()) return;
+    try {
+      await updateFlashcard({ id: editingCard._id, front: editCardFront, back: editCardBack }).unwrap();
+      setEditingCard(null);
+      setEditCardFront('');
+      setEditCardBack('');
+      setShowEditCardModal(false);
+    } catch (err) {
+      console.error('Failed to update flashcard:', err);
     }
   };
 
@@ -341,13 +379,36 @@ export const SubjectView = () => {
                               {card.back}
                             </p>
                           </div>
-                          <button
-                            onClick={() => handleDeleteCard(card._id, topic._id)}
-                            className="p-1.5 text-slate-500 hover:text-rose-455 rounded-lg hover:bg-slate-850 transition-colors cursor-pointer opacity-0 group-hover/card:opacity-100 focus:opacity-100 shrink-0"
-                            title="Delete Card"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
+                          <div className="flex items-center space-x-1 shrink-0 opacity-0 group-hover/card:opacity-100 focus-within:opacity-100 transition-opacity">
+                            {/* Pin/Unpin Action */}
+                            <button
+                              onClick={() => handleTogglePinCard(card._id, card.isPinned)}
+                              className={`p-1.5 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer ${
+                                card.isPinned ? 'text-yellow-500' : 'text-slate-500 hover:text-slate-350'
+                              }`}
+                              title={card.isPinned ? 'Unpin Card' : 'Pin Card'}
+                            >
+                              <Bookmark className={`h-3.5 w-3.5 ${card.isPinned ? 'fill-current' : ''}`} />
+                            </button>
+
+                            {/* Edit Action */}
+                            <button
+                              onClick={() => handleOpenEditCardModal(card)}
+                              className="p-1.5 text-slate-500 hover:text-indigo-400 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+                              title="Edit Card"
+                            >
+                              <Edit2 className="h-3.5 w-3.5" />
+                            </button>
+
+                            {/* Delete Action */}
+                            <button
+                              onClick={() => handleDeleteCard(card._id, topic._id)}
+                              className="p-1.5 text-slate-500 hover:text-rose-455 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+                              title="Delete Card"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -382,7 +443,7 @@ export const SubjectView = () => {
                   placeholder="e.g. Newton's Third Law, Photosynthesis Phase 1"
                   value={topicName}
                   onChange={(e) => setTopicName(e.target.value)}
-                  className="w-full bg-slate-955 border border-slate-800 hover:border-slate-700/80 focus:border-indigo-500 rounded-xl py-2 px-3 text-sm outline-none transition-all"
+                  className="w-full bg-slate-950 border border-slate-800 hover:border-slate-700/80 focus:border-indigo-500 rounded-xl py-2 px-3 text-sm text-white outline-none transition-all"
                   required
                   autoFocus
                 />
@@ -396,7 +457,7 @@ export const SubjectView = () => {
                   value={topicDesc}
                   onChange={(e) => setTopicDesc(e.target.value)}
                   rows={3}
-                  className="w-full bg-slate-955 border border-slate-800 hover:border-slate-700/80 focus:border-indigo-500 rounded-xl py-2 px-3 text-sm outline-none transition-all resize-none"
+                  className="w-full bg-slate-950 border border-slate-800 hover:border-slate-700/80 focus:border-indigo-500 rounded-xl py-2 px-3 text-sm text-white outline-none transition-all resize-none"
                 />
               </div>
               <button
@@ -413,12 +474,12 @@ export const SubjectView = () => {
       {/* Add Flashcard Modal */}
       {showCardModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-955/80 backdrop-blur-sm" onClick={() => { setShowCardModal(false); setSelectedTopicId(null); }}></div>
+          <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={() => { setShowCardModal(false); setSelectedTopicId(null); }}></div>
           
-          <div className="glass-panel w-full max-w-lg rounded-2xl border border-slate-805 p-6 z-10 animate-scale-up relative">
+          <div className="glass-panel w-full max-w-lg rounded-2xl border border-slate-800 p-6 z-10 animate-scale-up relative">
             <button
               onClick={() => { setShowCardModal(false); setSelectedTopicId(null); }}
-              className="absolute top-4 right-4 text-slate-505 hover:text-slate-350 cursor-pointer"
+              className="absolute top-4 right-4 text-slate-500 hover:text-slate-350 cursor-pointer"
             >
               <X className="h-5 w-5" />
             </button>
@@ -433,7 +494,7 @@ export const SubjectView = () => {
                   value={cardFront}
                   onChange={(e) => setCardFront(e.target.value)}
                   rows={3}
-                  className="w-full bg-slate-955 border border-slate-800 hover:border-slate-700/80 focus:border-indigo-500 rounded-xl py-2.5 px-3.5 text-sm outline-none transition-all resize-none"
+                  className="w-full bg-slate-950 border border-slate-800 hover:border-slate-700/80 focus:border-indigo-500 rounded-xl py-2.5 px-3.5 text-sm text-white outline-none transition-all resize-none"
                   required
                   autoFocus
                 />
@@ -447,7 +508,7 @@ export const SubjectView = () => {
                   value={cardBack}
                   onChange={(e) => setCardBack(e.target.value)}
                   rows={4}
-                  className="w-full bg-slate-955 border border-slate-800 hover:border-slate-700/80 focus:border-indigo-500 rounded-xl py-2.5 px-3.5 text-sm outline-none transition-all resize-none"
+                  className="w-full bg-slate-950 border border-slate-800 hover:border-slate-700/80 focus:border-indigo-500 rounded-xl py-2.5 px-3.5 text-sm text-white outline-none transition-all resize-none"
                   required
                 />
               </div>
@@ -456,6 +517,58 @@ export const SubjectView = () => {
                 className="w-full bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white font-semibold py-2 px-4 rounded-xl text-sm transition-all cursor-pointer"
               >
                 Add Flashcard
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Flashcard Modal */}
+      {showEditCardModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={() => { setShowEditCardModal(false); setEditingCard(null); }}></div>
+          
+          <div className="glass-panel w-full max-w-lg rounded-2xl border border-slate-800 p-6 z-10 animate-scale-up relative">
+            <button
+              onClick={() => { setShowEditCardModal(false); setEditingCard(null); }}
+              className="absolute top-4 right-4 text-slate-500 hover:text-slate-350 cursor-pointer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <h3 className="text-lg font-bold text-white mb-4">Edit Flashcard</h3>
+            <form onSubmit={handleEditCard} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+                  Front Side (Question / Concept / Formula)
+                </label>
+                <textarea
+                  placeholder="e.g. What is the derivative of sin(x)?"
+                  value={editCardFront}
+                  onChange={(e) => setEditCardFront(e.target.value)}
+                  rows={3}
+                  className="w-full bg-slate-950 border border-slate-800 hover:border-slate-700/80 focus:border-indigo-500 rounded-xl py-2.5 px-3.5 text-sm text-white outline-none transition-all resize-none"
+                  required
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+                  Back Side (Answer / Explanation / Definition)
+                </label>
+                <textarea
+                  placeholder="e.g. cos(x)"
+                  value={editCardBack}
+                  onChange={(e) => setEditCardBack(e.target.value)}
+                  rows={4}
+                  className="w-full bg-slate-950 border border-slate-800 hover:border-slate-700/80 focus:border-indigo-500 rounded-xl py-2.5 px-3.5 text-sm text-white outline-none transition-all resize-none"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white font-semibold py-2 px-4 rounded-xl text-sm transition-all cursor-pointer"
+              >
+                Save Changes
               </button>
             </form>
           </div>

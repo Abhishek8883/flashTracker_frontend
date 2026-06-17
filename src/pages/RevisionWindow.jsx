@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAppSelector } from '../store';
-import { useGetFlashcardsByTopicQuery, useIncrementRevisionMutation, useTogglePinFlashcardMutation } from '../store/apiSlice';
-import { ChevronLeft, ChevronRight, Bookmark, RotateCw, PartyPopper, CheckCircle, ArrowLeft, Keyboard } from 'lucide-react';
+import { useGetFlashcardsByTopicQuery, useIncrementRevisionMutation } from '../store/apiSlice';
+import { ChevronLeft, ChevronRight, RotateCw, PartyPopper, CheckCircle, ArrowLeft, Keyboard } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export const RevisionWindow = () => {
@@ -14,7 +14,6 @@ export const RevisionWindow = () => {
 
   // Mutations
   const [incrementRevision] = useIncrementRevisionMutation();
-  const [togglePinFlashcard] = useTogglePinFlashcardMutation();
 
   // Find current topic in cache across all topics queries
   const currentTopic = useAppSelector((state) => {
@@ -75,14 +74,7 @@ export const RevisionWindow = () => {
     }
   };
 
-  const handleTogglePin = async (id, currentPinStatus, e) => {
-    e.stopPropagation(); // Avoid flipping the card
-    try {
-      await togglePinFlashcard({ id, isPinned: !currentPinStatus }).unwrap();
-    } catch (err) {
-      console.error('Failed to toggle pin status:', err);
-    }
-  };
+
 
   const handleFinish = async () => {
     if (!topicId) return;
@@ -216,22 +208,11 @@ export const RevisionWindow = () => {
             >
               {/* Front Panel */}
               <div className="absolute inset-0 bg-slate-900 border border-slate-800 rounded-2xl p-8 flex flex-col justify-between backface-hidden select-none">
-                {/* Header: Pin Action */}
+                {/* Header */}
                 <div className="flex justify-between items-start">
                   <span className="text-[10px] uppercase font-bold text-indigo-400 bg-indigo-500/10 px-2.5 py-0.5 rounded border border-indigo-500/20">
                     Front / Question
                   </span>
-                  <button
-                    onClick={(e) => handleTogglePin(currentCard._id, currentCard.isPinned, e)}
-                    className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
-                      currentCard.isPinned
-                        ? 'text-yellow-450 bg-yellow-500/10 border-yellow-500/25'
-                        : 'text-slate-500 hover:text-slate-300 border-transparent'
-                    }`}
-                    title={currentCard.isPinned ? 'Unpin Card' : 'Pin Card'}
-                  >
-                    <Bookmark className={`h-4.5 w-4.5 ${currentCard.isPinned ? 'fill-current text-yellow-450' : ''}`} />
-                  </button>
                 </div>
 
                 {/* Middle Content */}
@@ -250,22 +231,11 @@ export const RevisionWindow = () => {
 
               {/* Back Panel */}
               <div className="absolute inset-0 bg-slate-900 border border-indigo-500/35 rounded-2xl p-8 flex flex-col justify-between backface-hidden rotate-y-180 select-none">
-                {/* Header: Pin Action */}
+                {/* Header */}
                 <div className="flex justify-between items-start">
                   <span className="text-[10px] uppercase font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded border border-emerald-500/20">
                     Back / Answer
                   </span>
-                  <button
-                    onClick={(e) => handleTogglePin(currentCard._id, currentCard.isPinned, e)}
-                    className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
-                      currentCard.isPinned
-                        ? 'text-yellow-450 bg-yellow-500/10 border-yellow-500/25'
-                        : 'text-slate-500 hover:text-slate-300 border-transparent'
-                    }`}
-                    title={currentCard.isPinned ? 'Unpin Card' : 'Pin Card'}
-                  >
-                    <Bookmark className={`h-4.5 w-4.5 ${currentCard.isPinned ? 'fill-current text-yellow-450' : ''}`} />
-                  </button>
                 </div>
 
                 {/* Middle Content */}

@@ -96,18 +96,16 @@ export const LoginRegister = () => {
           <button
             type="button"
             onClick={() => setIsLogin(true)}
-            className={`flex-1 pb-3 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
-              isLogin ? 'border-indigo-500 text-indigo-400 font-bold' : 'border-transparent text-slate-450 hover:text-slate-200'
-            }`}
+            className={`flex-1 pb-3 text-sm font-semibold border-b-2 transition-all cursor-pointer ${isLogin ? 'border-indigo-500 text-indigo-400 font-bold' : 'border-transparent text-slate-450 hover:text-slate-200'
+              }`}
           >
             Sign In
           </button>
           <button
             type="button"
             onClick={() => setIsLogin(false)}
-            className={`flex-1 pb-3 text-sm font-semibold border-b-2 transition-all cursor-pointer ${
-              !isLogin ? 'border-indigo-500 text-indigo-400 font-bold' : 'border-transparent text-slate-450 hover:text-slate-200'
-            }`}
+            className={`flex-1 pb-3 text-sm font-semibold border-b-2 transition-all cursor-pointer ${!isLogin ? 'border-indigo-500 text-indigo-400 font-bold' : 'border-transparent text-slate-450 hover:text-slate-200'
+              }`}
           >
             Register
           </button>
@@ -222,7 +220,7 @@ export const LoginRegister = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-indigo-500 hover:bg-indigo-600 active:scale-[0.99] text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition-all shadow-lg shadow-indigo-500/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+            className="w-full bg-indigo-500 hover:bg-indigo-600 active:scale-[0.99] text-white font-semibold py-2.5 px-4 mt-2 rounded-xl text-sm transition-all shadow-lg shadow-indigo-500/10 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 "
           >
             {loading ? (
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
